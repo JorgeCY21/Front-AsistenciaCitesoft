@@ -1,109 +1,57 @@
-// src/pages/Home.tsx
 import React, { useEffect, useState } from 'react'
-// Puedes instalar react-qr-reader o cualquier otra librería compatible
-// import QrReader from 'react-qr-reader'
-
-type Asistencia = {
-  fecha: string
-  hora: string
-  ubicacion: string
-}
-
-const universidadCoords = {
-  lat: -16.3988, // cambia esto por la latitud real
-  lng: -71.5369, // cambia esto por la longitud real
-  rango: 0.0015 // margen de error en coordenadas
-}
-
-function estaEnUbicacion(lat: number, lng: number) {
-  return (
-    Math.abs(lat - universidadCoords.lat) <= universidadCoords.rango &&
-    Math.abs(lng - universidadCoords.lng) <= universidadCoords.rango
-  )
-}
+import { QRScanner } from '../components/QRScanner'
 
 export function HomePage() {
-  const [ubicacionPermitida, setUbicacionPermitida] = useState(false)
-  const [historial, setHistorial] = useState<Asistencia[]>([])
-  const [coordenadas, setCoordenadas] = useState<{ lat: number; lng: number } | null>(null)
+  const [ubicacionValida, setUbicacionValida] = useState(false)
+  const [mensaje, setMensaje] = useState('')
+  const [asistencias, setAsistencias] = useState<string[]>([])
+
+  const latitudUni = -16.426563
+  const longitudUni = -71.529391
+  const margen = 0.002
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const { latitude, longitude } = pos.coords
-        setCoordenadas({ lat: latitude, lng: longitude })
-        setUbicacionPermitida(estaEnUbicacion(latitude, longitude))
+      (position) => {
+        const { latitude, longitude } = position.coords
+        const estaCerca =
+          Math.abs(latitude - latitudUni) < margen &&
+          Math.abs(longitude - longitudUni) < margen
+
+        setUbicacionValida(estaCerca)
+        setMensaje(
+          estaCerca
+            ? 'Estás en la universidad. Puedes registrar tu asistencia.'
+            : 'No estás en la universidad. No puedes registrar asistencia.'
+        )
       },
       () => {
-        setUbicacionPermitida(false)
+        setMensaje('No se pudo obtener la ubicación.')
       }
     )
   }, [])
 
-  const registrarAsistencia = () => {
-    if (!coordenadas) return
-    const ahora = new Date()
-    const nuevaAsistencia: Asistencia = {
-      fecha: ahora.toLocaleDateString(),
-      hora: ahora.toLocaleTimeString(),
-      ubicacion: `Lat: ${coordenadas.lat.toFixed(5)}, Lng: ${coordenadas.lng.toFixed(5)}`
-    }
-    setHistorial([nuevaAsistencia, ...historial])
+  const handleQRScan = (data: string) => {
+    setAsistencias((prev) => [...prev, `${new Date().toLocaleString()} - ${data}`])
   }
 
   return (
     <div className="min-h-screen bg-[#CACBCD] p-6">
-      <h1 className="text-3xl font-bold text-center text-[#90A23C] mb-8">
-        Registro de Asistencia
-      </h1>
+      <h1 className="text-3xl font-bold mb-4">Página Principal</h1>
+      <p className="mb-4 text-lg">{mensaje}</p>
 
-      <div className="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-6 space-y-6">
-        {/* Sección de escaneo */}
-        <div className="text-center">
-          {ubicacionPermitida ? (
-            <>
-              <p className="text-[#90A23C] font-medium mb-4">Estás dentro de la universidad.</p>
-              {/* <QrReader
-                onScan={handleQRScan}
-                onError={(err) => console.error(err)}
-              /> */}
-              <button
-                onClick={registrarAsistencia}
-                className="bg-[#E6953A] text-white font-bold py-2 px-4 rounded-lg hover:bg-[#d28231] transition"
-              >
-                Escanear QR / Registrar
-              </button>
-            </>
-          ) : (
-            <p className="text-red-500 font-medium">
-              No estás en la ubicación permitida. No puedes registrar asistencia.
-            </p>
-          )}
-        </div>
+      {ubicacionValida && <QRScanner onScan={handleQRScan} />}
 
-        {/* Historial */}
-        <div>
-          <h2 className="text-lg font-semibold text-[#90A23C] mb-2">Historial de Asistencias</h2>
-          <ul className="space-y-2 max-h-60 overflow-y-auto">
-            {historial.length === 0 ? (
-              <p className="text-gray-500">Aún no hay asistencias registradas.</p>
-            ) : (
-              historial.map((item, index) => (
-                <li key={index} className="bg-[#F9F9F9] p-3 rounded-lg shadow-sm">
-                  <p className="text-sm">
-                    <span className="font-semibold">Fecha:</span> {item.fecha}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-semibold">Hora:</span> {item.hora}
-                  </p>
-                  <p className="text-sm">
-                    <span className="font-semibold">Ubicación:</span> {item.ubicacion}
-                  </p>
-                </li>
-              ))
-            )}
-          </ul>
-        </div>
+      <div className="mt-8">
+        <h2 className="text-2xl font-semibold mb-2">Historial de Asistencias</h2>
+        <ul className="bg-white rounded-lg p-4 shadow-md space-y-2">
+          {asistencias.length === 0 && <li>No hay asistencias registradas.</li>}
+          {asistencias.map((registro, index) => (
+            <li key={index} className="border-b last:border-none py-2">
+              {registro}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   )
