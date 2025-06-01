@@ -6,7 +6,6 @@ import { calcularDistancia, LAT_UNI, LNG_UNI, RANGO_METROS } from '../components
 import type { ViewType } from '../components/types';
 
 export default function HomePage() {
-  const [locationOk, setLocationOk] = useState(false);
   const [error, setError] = useState('');
   const [scanned, setScanned] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
@@ -17,10 +16,10 @@ export default function HomePage() {
     const latitude = -16.3989;
     const longitude = -71.5369;
     const distancia = calcularDistancia(latitude, longitude, LAT_UNI, LNG_UNI);
-    if (distancia <= RANGO_METROS) {
-      setLocationOk(true);
-    } else {
+    if (distancia > RANGO_METROS) {
       setError('No estás en la ubicación permitida para registrar asistencia.');
+    } else {
+      setError('');
     }
     setLoading(false);
   }, []);
