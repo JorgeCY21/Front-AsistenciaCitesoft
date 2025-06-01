@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react'
-import { Html5QrcodeScanner } from 'html5-qrcode'
+import { useEffect } from 'react'
+import { Html5QrcodeScanner } from 'html5-qrcode/esm/html5-qrcode-scanner'
 
 interface QRScannerProps {
   onScan: (data: string) => void
@@ -10,22 +10,22 @@ export function QRScanner({ onScan }: QRScannerProps) {
     const scanner = new Html5QrcodeScanner('qr-reader', {
       fps: 10,
       qrbox: 250,
-    })
+    }, false) // <-- se añadió el tercer argumento
 
     scanner.render(
-      (decodedText) => {
+      (decodedText: string) => {
         onScan(decodedText)
-        scanner.clear()
+        scanner.clear().catch(err => console.error('Error al limpiar', err))
       },
-      (error) => {
-        console.warn('QR scan error', error)
+      (error: any) => {
+        console.warn('Error de escaneo', error)
       }
     )
 
     return () => {
-      scanner.clear()
+      scanner.clear().catch(err => console.error('Error al desmontar', err))
     }
   }, [onScan])
 
-  return <div id="qr-reader" className="rounded-lg shadow-md" />
+  return <div id="qr-reader" />
 }
