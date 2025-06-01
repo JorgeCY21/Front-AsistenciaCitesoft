@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import Header from '../components/Header'
 import ScannerView from '../components/ScannerView'
 import HistoryView from '../components/HistoryView'
-import { initQrScanner } from '../components/QRScanner'
+import { QRScanner } from '../components/QRScanner'  // Importa tu QRScanner original
 import { calcularDistancia, LAT_UNI, LNG_UNI, RANGO_METROS } from '../utils/location'
 
 export default function HomePage() {
@@ -14,25 +14,25 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const distancia = calcularDistancia(LAT_UNI, LNG_UNI, LAT_UNI, LNG_UNI)
-    if (distancia <= RANGO_METROS) setLocationOk(true)
-    else setError('No estás en la ubicación permitida.')
-    setLoading(false)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords
+        const distancia = calcularDistancia(latitude, longitude, LAT_UNI, LNG_UNI)
+        if (distancia <= RANGO_METROS) setLocationOk(true)
+        else setError('No estás en la ubicación permitida.')
+        setLoading(false)
+      },
+      () => {
+        setError('No se pudo obtener la ubicación.')
+        setLoading(false)
+      }
+    )
   }, [])
 
-  useEffect(() => {
-    if (locationOk && !scanned && view === 'scanner') {
-      const scanner = initQrScanner(
-        (result) => {
-          setScanned(true)
-          setHistory((prev) => [...prev, `✅ ${new Date().toLocaleString()}`])
-          scanner.clear()
-        },
-        (err) => console.warn('Error escaneando QR:', err)
-      )
-      return () => { scanner.clear().catch(console.error) }
-    }
-  }, [locationOk, scanned, view])
+  function handleScan(data: string) {
+    setScanned(true)
+    setHistory((prev) => [...prev, `✅ ${new Date().toLocaleString()} - ${data}`])
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -44,7 +44,30 @@ export default function HomePage() {
           </div>
         ) : (
           view === 'scanner' ? (
-            <ScannerView scanned={scanned} error={error} setScanned={setScanned} />
+            <div className="bg-white rounded-xl shadow-md p-4">
+              {error ? (
+                <p className="text-red-600 font-semibold">{error}</p>
+              ) : (
+                <>
+                  {!scanned ? (
+                    <>
+                      <QRScanner onScan={handleScan} />
+                      <p className="mt-2 text-center text-gray-700">Apunta tu cámara al código QR.</p>
+                    </>
+                  ) : (
+                    <div className="text-center p-4 text-green-700 font-bold">
+                      ¡Asistencia registrada con éxito!
+                      <button
+                        onClick={() => setScanned(false)}
+                        className="mt-3 px-3 py-1 bg-[#7C8D34] text-white rounded hover:bg-[#90A23C]"
+                      >
+                        Escanear otro
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
           ) : (
             <HistoryView history={history} setView={setView} />
           )
