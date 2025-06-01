@@ -1,6 +1,9 @@
 import React, { useState } from 'react'
 import { EyeIcon, EyeOffIcon, UserIcon, LockIcon } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+
 export function Login() {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     username: '',
@@ -15,9 +18,16 @@ export function Login() {
   }
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Login attempt:', formData)
-    // Here you would typically handle authentication
+    const { username, password } = formData
+  
+    if (username === 'admin' && password === '1234') {
+      alert('Inicio de sesión exitoso')
+      navigate('/home') // 🔁 Redirección
+    } else {
+      alert('Usuario o contraseña incorrectos')
+    }
   }
+  
   return (
     <div className="min-h-screen w-full bg-[#ecf0f3] flex items-center justify-center p-4">
       <div className="max-w-md w-full">
