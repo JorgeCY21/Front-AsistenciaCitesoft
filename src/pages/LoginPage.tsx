@@ -30,7 +30,7 @@ export function Login() {
               className="mx-auto mb-4 w-20 h-20 object-contain rounded-full shadow-md bg-white p-1"
             />
             <h1 className="text-3xl font-bold text-white">Bienvenidos a Citesoft!</h1>
-            <p className="text-emerald-100 mt-2">Inicia sesión para registrar tu asistencia</p>
+            <p className="text-white mt-2">Inicia sesión para registrar tu asistencia</p>
           </div>
 
           {/* Login Form */}
