@@ -8,7 +8,7 @@ interface BotonesNavegacionProps {
 export const BotonesNavegacion = ({ view, setView }: BotonesNavegacionProps) => (
   <nav className="flex gap-2 w-full sm:w-auto">
     <button
-      className={`flex-1 sm:flex-none px-4 py-2 rounded-lg transition-all font-semibold text-sm sm:text-base 
+      className={`flex-1 sm:flex-none px-4 py-2 rounded-lg transition-all font-semibold text-sm sm:text-base cursor-pointer
         ${view === 'scanner' ? 
           'bg-[#E6953A] text-white shadow-md transform scale-105' : 
           'bg-white/20 text-white hover:bg-white/30'}`}
@@ -21,7 +21,7 @@ export const BotonesNavegacion = ({ view, setView }: BotonesNavegacionProps) => 
       Registrar
     </button>
     <button
-      className={`flex-1 sm:flex-none px-4 py-2 rounded-lg transition-all font-semibold text-sm sm:text-base 
+      className={`flex-1 sm:flex-none px-4 py-2 rounded-lg transition-all font-semibold text-sm sm:text-base  cursor-pointer
         ${view === 'history' ? 
           'bg-[#E6953A] text-white shadow-md transform scale-105' : 
           'bg-white/20 text-white hover:bg-white/30'}`}
