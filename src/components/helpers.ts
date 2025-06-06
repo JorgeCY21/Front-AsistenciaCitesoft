@@ -1,6 +1,6 @@
 export const LAT_UNI = -16.40651460478263; // Nueva latitud área de Ingenierías UNSA
 export const LNG_UNI = -71.5249305718826;  // Nueva longitud
-export const RANGO_METROS = 20; // Rango reducido a 5 metros
+export const RANGO_METROS = 2000; // Rango 20 metros original
 
 export function calcularDistancia(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371e3;
