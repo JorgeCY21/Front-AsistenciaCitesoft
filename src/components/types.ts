@@ -1,1 +1,1 @@
-export type ViewType = 'scanner' | 'history';
+export type ViewType = 'scanner' | 'history' | 'adminDashboard' | 'adminHistory' | 'usuariosActivos' | 'historialGeneral';
